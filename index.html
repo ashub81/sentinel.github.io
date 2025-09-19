@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Sentinel: Secure Communication Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Midnight & Cyan (Dark), Slate & Cyan (Light) -->
+    <!-- Application Structure Plan: The application is structured as a single-page narrative that guides the user from the problem to the solution. It begins with a hero section stating the mission, followed by sections detailing the threat, the proposed architecture, key security features, the user ecosystem, and finally the project deliverables. This thematic flow is more intuitive than the original report's numbered list, telling a compelling story about why the platform is needed and what it entails. Navigation is facilitated by a sticky header, allowing users to jump to sections of interest. Interactive elements like clickable cards and a dynamic chart are used to make dense information digestible and engaging. -->
+    <!-- Visualization & Content Choices: 
+        - Threat Landscape: Report Info (1.1-1.4) -> Goal: Inform -> Viz: Interactive Icon Cards -> Interaction: Click to reveal details -> Justification: Breaks down complex threats into clear, individual points, more engaging than a list. Method: HTML/CSS/JS.
+        - Solution Architecture: Report Info (2.1, 3.1.2) -> Goal: Organize/Explain -> Viz: HTML/CSS Diagram -> Interaction: Click on components to get explanations -> Justification: Visually clarifies the technical data flow, which is crucial for understanding the solution's core mechanism. Method: HTML/CSS/JS.
+        - Security Features: Report Info (2.3.1-2.3.7) -> Goal: Detail -> Viz: Grid of clickable cards -> Interaction: Click to show detailed descriptions -> Justification: Allows users to explore specific requirements without being overwhelmed by a long text block. Method: HTML/CSS/JS.
+        - User Ecosystem: Report Info (2.3.2, 3.1.4) -> Goal: Compare -> Viz: Bar Chart -> Interaction: Hover for tooltips on user roles -> Justification: Provides a quick, visual comparison of access and control levels across different user groups. Library: Chart.js.
+        - Project Deliverables: Report Info (3.1) -> Goal: Inform -> Viz: Checklist-style cards -> Interaction: Static -> Justification: Clearly and directly presents the final project objectives. Method: HTML/CSS.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        :root {
+            --bg-color: #0d1117;
+            --text-color: #c9d1d9;
+            --text-color-light: #8b949e;
+            --text-color-header: #ffffff;
+            --header-bg: rgba(13, 17, 23, 0.8);
+            --card-bg: rgba(31, 41, 55, 0.5);
+            --border-color: #30363d;
+            --accent-color: #22d3ee;
+            --accent-color-text: #22d3ee;
+            --icon-wrapper-bg: #0d1117;
+            --chart-grid-color: #30363d;
+        }
+
+        .light-mode {
+            --bg-color: #f8fafc;
+            --text-color: #1f2937;
+            --text-color-light: #64748b;
+            --text-color-header: #111827;
+            --header-bg: rgba(255, 255, 255, 0.8);
+            --card-bg: #ffffff;
+            --border-color: #e5e7eb;
+            --accent-color: #0891b2;
+            --accent-color-text: #0e7490;
+            --icon-wrapper-bg: #f1f5f9;
+            --chart-grid-color: #e5e7eb;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            background-image: 
+                linear-gradient(rgba(13, 17, 23, 0.95), rgba(13, 17, 23, 0.95)),
+                url("https://www.transparenttextures.com/patterns/cubes.png");
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .light-mode body {
+             background-image: 
+                linear-gradient(rgba(248, 250, 252, 0.95), rgba(248, 250, 252, 0.95)),
+                url("https://www.transparenttextures.com/patterns/subtle-zebra-3d.png");
+        }
+
+        .font-mono { font-family: 'Roboto Mono', monospace; }
+
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(10px);
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out, border-color 0.2s, background-color 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent-color);
+            box-shadow: 0 0 20px color-mix(in srgb, var(--accent-color) 20%, transparent);
+        }
+        .icon-wrapper {
+            font-size: 2rem;
+            line-height: 1;
+            color: var(--accent-color-text);
+            border: 1px solid var(--accent-color);
+            box-shadow: 0 0 10px color-mix(in srgb, var(--accent-color) 30%, transparent);
+            background-color: var(--icon-wrapper-bg);
+            transition: color 0.3s ease, border-color 0.3s ease, background-color 0.3s ease;
+        }
+        .active-nav { color: var(--accent-color-text) !important; font-weight: 600; }
+        .glow-border { border: 1px solid var(--border-color); }
+        .glow-border-active {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 15px color-mix(in srgb, var(--accent-color) 25%, transparent);
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+        }
+        .theme-toggle-btn {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            width: 40px;
+            height: 40px;
+            border-radius: 9999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            cursor: pointer;
+            color: var(--text-color);
+            transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+        }
+        .theme-toggle-btn:hover {
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+        }
+
+    </style>
+</head>
+<body class="text-slate-300">
+
+    <header class="bg-header-bg backdrop-blur-sm sticky top-0 z-50 border-b border-border-color">
+        <nav class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <span class="text-xl font-bold text-text-color-header font-mono tracking-wider">
+                        <span class="text-accent-color-text">[</span>PROJECT_SENTINEL<span class="text-accent-color-text">]</span>
+                    </span>
+                </div>
+                <div class="flex items-center">
+                    <div class="hidden md:block">
+                        <div class="ml-10 flex items-baseline space-x-4">
+                            <a href="#threat" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-text-color-light hover:text-accent-color-text">Threats</a>
+                            <a href="#architecture" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-text-color-light hover:text-accent-color-text">Architecture</a>
+                            <a href="#features" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-text-color-light hover:text-accent-color-text">Features</a>
+                            <a href="#users" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-text-color-light hover:text-accent-color-text">Users</a>
+                            <a href="#deliverables" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-text-color-light hover:text-accent-color-text">Deliverables</a>
+                        </div>
+                    </div>
+                    <button id="theme-toggle" class="theme-toggle-btn ml-4" title="Toggle theme">
+                        <span>🌙</span>
+                    </button>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+
+        <section id="hero" class="text-center py-16">
+            <h1 class="text-4xl md:text-5xl font-extrabold text-text-color-header mb-4">Secure Closed-Group Communication</h1>
+            <p class="text-lg md:text-xl text-text-color-light font-mono">Initializing secure network for defence personnel, veterans, and families.</p>
+        </section>
+
+        <section id="threat" class="py-16 scroll-mt-16">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-text-color-header">Threat Vector Analysis</h2>
+                <p class="mt-2 text-lg text-text-color-light font-mono">// Risks on public communication networks</p>
+            </div>
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div class="card p-6 rounded-lg">
+                    <div class="flex items-center justify-center h-16 w-16 rounded-full icon-wrapper mb-4">
+                        <span>⊕</span>
+                    </div>
+                    <h3 class="text-lg font-semibold mb-2 text-text-color-header">Targeted Exploitation</h3>
+                    <p class="text-text-color-light">Adversaries use social engineering and malicious apps to target personnel and families, exploiting behavioral patterns from informal communication.</p>
+                </div>
+                <div class="card p-6 rounded-lg">
+                    <div class="flex items-center justify-center h-16 w-16 rounded-full icon-wrapper mb-4">
+                        <span>⨷</span>
+                    </div>
+                    <h3 class="text-lg font-semibold mb-2 text-text-color-header">Uncontrolled Platforms</h3>
+                    <p class="text-text-color-light">Commercial apps like WhatsApp lack control over group membership and allow unrestricted forwarding of potentially sensitive information outside trusted circles.</p>
+                </div>
+                <div class="card p-6 rounded-lg">
+                    <div class="flex items-center justify-center h-16 w-16 rounded-full icon-wrapper mb-4">
+                        <span>⨙</span>
+                    </div>
+                    <h3 class="text-lg font-semibold mb-2 text-text-color-header">Phishing & Malware</h3>
+                    <p class="text-text-color-light">Hostile actors exploit public platforms to spread malware-injected files and phishing links, leading to surveillance and targeted campaigns.</p>
+                </div>
+                <div class="card p-6 rounded-lg">
+                    <div class="flex items-center justify-center h-16 w-16 rounded-full icon-wrapper mb-4">
+                        <span>🛡</span>
+                    </div>
+                    <h3 class="text-lg font-semibold mb-2 text-text-color-header">Lack of Secure Alternative</h3>
+                    <p class="text-text-color-light">There is no dedicated, defence-exclusive platform that ensures controlled membership, encryption, and strict data containment over public networks.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="architecture" class="py-16 scroll-mt-16 card rounded-xl">
+            <div class="text-center mb-12 px-4">
+                <h2 class="text-3xl font-bold text-text-color-header">System Architecture Blueprint</h2>
+                <p class="mt-2 text-lg text-text-color-light font-mono">// Multi-layered data encapsulation protocol</p>
+            </div>
+            <div class="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-4 text-center text-sm md:text-base">
+                <div class="arch-component card p-4 rounded-lg glow-border w-48 text-center cursor-pointer" data-info="The user-facing mobile app for Android/iOS, providing all communication features.">
+                    <div class="text-4xl mb-2">📱</div>
+                    <h4 class="font-semibold text-text-color-header">Mobile Application</h4>
+                    <p class="text-xs text-text-color-light font-mono">User End-Point</p>
+                </div>
+                <div class="text-2xl text-text-color-light font-mono self-center animate-pulse">></div>
+                <div class="arch-component card p-4 rounded-lg glow-border w-48 text-center cursor-pointer" data-info="All communication from the app travels over existing public 4G/5G or WiFi networks.">
+                    <div class="text-4xl mb-2">🌐</div>
+                    <h4 class="font-semibold text-text-color-header">Public Internet</h4>
+                    <p class="text-xs text-text-color-light font-mono">Existing Infrastructure</p>
+                </div>
+                <div class="text-2xl text-text-color-light font-mono self-center animate-pulse">></div>
+                <div class="arch-component card p-4 rounded-lg glow-border-active w-48 text-center cursor-pointer" data-info="A mandatory, encrypted tunnel that encapsulates all app data, isolating it from the public internet.">
+                    <div class="text-4xl mb-2">🔒</div>
+                    <h4 class="font-semibold text-accent-color-text">Defence VPN Tunnel</h4>
+                    <p class="text-xs text-text-color-light font-mono">Secure Encapsulation</p>
+                </div>
+                <div class="text-2xl text-text-color-light font-mono self-center animate-pulse">></div>
+                <div class="arch-component card p-4 rounded-lg glow-border w-48 text-center cursor-pointer" data-info="Military-grade, India-hosted servers for user management, data routing, and administrative oversight.">
+                    <div class="text-4xl mb-2">🖧</div>
+                    <h4 class="font-semibold text-text-color-header">Secure HQ Servers</h4>
+                    <p class="text-xs text-text-color-light font-mono">Controlled Environment</p>
+                </div>
+            </div>
+            <div id="arch-info" class="mt-8 text-center p-4 bg-gray-900/50 border-l-4 border-accent-color text-accent-color-text rounded-r-lg max-w-2xl mx-auto min-h-[6rem] flex items-center justify-center">
+                <p class="font-mono">Select a component to view details.</p>
+            </div>
+        </section>
+
+        <section id="features" class="py-16 scroll-mt-16">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-text-color-header">Core Security & Functionality</h2>
+                <p class="mt-2 text-lg text-text-color-light font-mono">// Click on each module for specifications</p>
+            </div>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="card cursor-pointer p-6 rounded-lg" data-feature="encryption">
+                    <h3 class="text-lg font-semibold text-text-color-header mb-2">🔐 End-to-End Encryption</h3>
+                    <p class="text-text-color-light">Ensures all messages, calls, and files are secure from interception, even within the VPN.</p>
+                </div>
+                <div class="card cursor-pointer p-6 rounded-lg" data-feature="membership">
+                    <h3 class="text-lg font-semibold text-text-color-header mb-2">👤 HQ-Controlled Groups</h3>
+                    <p class="text-text-color-light">Only HQ-approved personnel, veterans, and families can join verified communication groups.</p>
+                </div>
+                <div class="card cursor-pointer p-6 rounded-lg" data-feature="containment">
+                    <h3 class="text-lg font-semibold text-text-color-header mb-2">🧱 Information Containment</h3>
+                    <p class="text-text-color-light">Prevents data leaks with strict controls on sharing, copying, and screenshots.</p>
+                </div>
+                <div class="card cursor-pointer p-6 rounded-lg" data-feature="media">
+                    <h3 class="text-lg font-semibold text-text-color-header mb-2">🎬 Full-Featured Comms</h3>
+                    <p class="text-text-color-light">Provides secure text, voice, video, and multimedia file sharing within the closed environment.</p>
+                </div>
+                <div class="card cursor-pointer p-6 rounded-lg" data-feature="hosting">
+                    <h3 class="text-lg font-semibold text-text-color-header mb-2">🇮🇳 Sovereign Hosting</h3>
+                    <p class="text-text-color-light">All infrastructure, including servers and VPN gateways, must be hosted in India.</p>
+                </div>
+                <div class="card cursor-pointer p-6 rounded-lg" data-feature="admin">
+                    <h3 class="text-lg font-semibold text-text-color-header mb-2">⚙️ Admin Oversight</h3>
+                    <p class="text-text-color-light">Maintains secure, role-based logs and session records for administrative monitoring.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="users" class="py-16 scroll-mt-16 card rounded-xl">
+            <div class="text-center mb-12 px-4">
+                <h2 class="text-3xl font-bold text-text-color-header">User Access Control Matrix</h2>
+                <p class="mt-2 text-lg text-text-color-light font-mono">// Role-based access privileges</p>
+            </div>
+            <div class="chart-container">
+                <canvas id="userAccessChart"></canvas>
+            </div>
+        </section>
+
+        <section id="deliverables" class="py-16 scroll-mt-16">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-text-color-header">Project Deliverables</h2>
+                <p class="mt-2 text-lg text-text-color-light font-mono">// Primary development objectives</p>
+            </div>
+            <div class="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                <div class="card p-8 rounded-lg">
+                    <h3 class="text-2xl font-semibold mb-4 text-text-color-header">📱 Mobile Application</h3>
+                    <ul class="space-y-3 text-text-color">
+                        <li class="flex items-start"><span class="text-accent-color-text mr-3 mt-1 font-mono">></span><span>Accessible on Android/iOS via public networks.</span></li>
+                        <li class="flex items-start"><span class="text-accent-color-text mr-3 mt-1 font-mono">></span><span>Establishes all communication through the defence VPN.</span></li>
+                        <li class="flex items-start"><span class="text-accent-color-text mr-3 mt-1 font-mono">></span><span>Provides encrypted messaging, voice, and video services.</span></li>
+                        <li class="flex items-start"><span class="text-accent-color-text mr-3 mt-1 font-mono">></span><span>Strictly prevents external sharing or export of any data.</span></li>
+                    </ul>
+                </div>
+                <div class="card p-8 rounded-lg">
+                    <h3 class="text-2xl font-semibold mb-4 text-text-color-header">⚙️ HQ Command Dashboard</h3>
+                    <ul class="space-y-3 text-text-color">
+                        <li class="flex items-start"><span class="text-accent-color-text mr-3 mt-1 font-mono">></span><span>Web-based portal for system administration.</span></li>
+                        <li class="flex items-start"><span class="text-accent-color-text mr-3 mt-1 font-mono">></span><span>Allows for group creation and management.</span></li>
+                        <li class="flex items-start"><span class="text-accent-color-text mr-3 mt-1 font-mono">></span><span>Handles membership approvals and user verification.</span></li>
+                        <li class="flex items-start"><span class="text-accent-color-text mr-3 mt-1 font-mono">></span><span>Provides tools for monitoring system health and security logs.</span></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+        
+    </main>
+
+    <footer class="bg-gray-900/50 border-t border-border-color">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center text-text-color-light">
+            <p class="font-mono">Project Sentinel // Conceptual Brief // Status: Active</p>
+        </div>
+    </footer>
+
+    <div id="feature-modal" class="fixed inset-0 bg-black bg-opacity-75 z-[100] hidden items-center justify-center p-4">
+        <div class="card max-w-lg w-full rounded-lg">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 id="modal-title" class="text-2xl font-bold text-text-color-header font-mono"></h2>
+                    <button id="modal-close" class="text-text-color-light hover:text-white text-3xl">&times;</button>
+                </div>
+                <div id="modal-content" class="text-text-color"></div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const themeToggle = document.getElementById('theme-toggle');
+            const body = document.body;
+            let userAccessChart;
+
+            const featureDetails = {
+                encryption: {
+                    title: '[ENCRYPTION_SPEC]',
+                    content: '<p class="font-mono">All communication must be encrypted end-to-end (E2EE) using modern cryptographic standards. This ensures that no third party, not even server administrators, can access the content. This security layer operates on top of the VPN tunnel for maximum protection.</p>'
+                },
+                membership: {
+                    title: '[MEMBERSHIP_PROTOCOL]',
+                    content: '<p class="font-mono">User registration and group membership are centrally managed. Every member must be verified and approved by an HQ authority. This includes:</p><ul class="list-disc list-inside mt-2 space-y-1 font-mono"><li>Verification of serving personnel, veterans, and family.</li><li>Creation of closed, purpose-specific groups.</li><li>Prevention of unauthorized users from joining or discovering groups.</li></ul>'
+                },
+                containment: {
+                    title: '[CONTAINMENT_DIRECTIVE]',
+                    content: '<p class="font-mono">The application acts as a "digital fortress," preventing data exfiltration. Key technical requirements include:</p><ul class="list-disc list-inside mt-2 space-y-1 font-mono"><li><strong>Disable Forwarding:</strong> Block native "share/export" functions.</li><li><strong>Copy/Paste Restrictions:</strong> Disable copying of message content.</li><li><strong>Screen Capture Blocking:</strong> Implement controls to prevent screenshots and screen recordings.</li><li><strong>Local Export Control:</strong> Prevent saving media to public device storage.</li></ul>'
+                },
+                media: {
+                    title: '[COMMS_FEATURES]',
+                    content: '<p class="font-mono">The platform must provide a secure, user-friendly experience comparable to commercial apps:</p><ul class="list-disc list-inside mt-2 space-y-1 font-mono"><li>One-to-one and group text messaging.</li><li>Voice over IP (VoIP) calls.</li><li>Video calls.</li><li>Sharing of images, videos, and documents with malware scanning.</li></ul>'
+                },
+                hosting: {
+                    title: '[SOVEREIGN_HOSTING]',
+                    content: '<p class="font-mono">To ensure data sovereignty, all system infrastructure must be physically located within India. This includes:</p><ul class="list-disc list-inside mt-2 space-y-1 font-mono"><li>Application servers and databases.</li><li>VPN gateways and controllers.</li><li>Adherence to military-grade physical and digital security standards.</li></ul>'
+                },
+                admin: {
+                    title: '[ADMIN_OVERSIGHT]',
+                    content: '<p class="font-mono">The HQ Command Dashboard will provide monitoring capabilities without compromising user privacy. This involves:</p><ul class="list-disc list-inside mt-2 space-y-1 font-mono"><li>Secure, role-based access for administrators.</li><li>Logging of administrative actions, not user message content.</li><li>Monitoring of system health, user activity (logins, sessions), and security events.</li></ul>'
+                }
+            };
+
+            function getChartColors(theme) {
+                if (theme === 'light') {
+                    return {
+                        textColor: '#1f2937',
+                        borderColor: '#e5e7eb',
+                        accentColor: '#0891b2',
+                        bgColor1: 'rgba(8, 145, 178, 0.5)',
+                        bgColor2: 'rgba(8, 145, 178, 0.4)',
+                        bgColor3: 'rgba(8, 145, 178, 0.3)',
+                        bgColor4: 'rgba(8, 145, 178, 0.2)',
+                        tooltipBg: '#ffffff',
+                        tooltipText: '#1f2937'
+                    };
+                } else { // dark
+                    return {
+                        textColor: '#c9d1d9',
+                        borderColor: '#30363d',
+                        accentColor: '#22d3ee',
+                        bgColor1: 'rgba(34, 211, 238, 0.5)',
+                        bgColor2: 'rgba(34, 211, 238, 0.4)',
+                        bgColor3: 'rgba(34, 211, 238, 0.3)',
+                        bgColor4: 'rgba(34, 211, 238, 0.2)',
+                        tooltipBg: '#1f2937',
+                        tooltipText: '#c9d1d9'
+                    };
+                }
+            }
+
+            function createOrUpdateChart(theme) {
+                if (userAccessChart) {
+                    userAccessChart.destroy();
+                }
+                
+                const colors = getChartColors(theme);
+                const ctx = document.getElementById('userAccessChart').getContext('2d');
+                
+                userAccessChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['HQ Admin', 'Personnel', 'Veterans', 'Families'],
+                        datasets: [{
+                            label: 'Level of Control & Access',
+                            data: [100, 75, 60, 50],
+                            backgroundColor: [colors.bgColor1, colors.bgColor2, colors.bgColor3, colors.bgColor4],
+                            borderColor: [colors.accentColor, colors.accentColor, colors.accentColor, colors.accentColor],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true, max: 100,
+                                grid: { color: colors.borderColor },
+                                ticks: {
+                                    color: colors.textColor,
+                                    callback: function(value) {
+                                        if(value === 100) return 'Full Admin'; if(value === 75) return 'High';
+                                        if(value === 50) return 'Standard'; if(value === 25) return 'Limited';
+                                        if(value === 0) return 'None';
+                                    }
+                                }
+                            },
+                            x: {
+                                grid: { display: false },
+                                ticks: { color: colors.textColor, font: { family: "'Roboto Mono', monospace" } }
+                            }
+                        },
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                backgroundColor: colors.tooltipBg,
+                                titleColor: colors.tooltipText,
+                                bodyColor: colors.tooltipText,
+                                titleFont: { family: "'Roboto Mono', monospace" },
+                                bodyFont: { family: "'Inter', sans-serif" },
+                                callbacks: {
+                                    label: function(context) {
+                                        const user = context.label;
+                                        if (user === 'HQ Admin') return 'Full system control, user management, monitoring.';
+                                        if (user === 'Personnel') return 'Standard communication features within assigned groups.';
+                                        if (user === 'Veterans') return 'Access to specific veteran-affairs groups.';
+                                        if (user === 'Families') return 'Access to family support and community groups.';
+                                        return '';
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            function setTheme(theme) {
+                localStorage.setItem('theme', theme);
+                if (theme === 'light') {
+                    body.classList.add('light-mode');
+                    themeToggle.innerHTML = '<span>☀️</span>';
+                } else {
+                    body.classList.remove('light-mode');
+                    themeToggle.innerHTML = '<span>🌙</span>';
+                }
+                createOrUpdateChart(theme);
+            }
+
+            themeToggle.addEventListener('click', () => {
+                const currentTheme = body.classList.contains('light-mode') ? 'light' : 'dark';
+                setTheme(currentTheme === 'light' ? 'dark' : 'light');
+            });
+            
+            const savedTheme = localStorage.getItem('theme');
+            const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
+            const initialTheme = savedTheme || (prefersLight ? 'light' : 'dark');
+            setTheme(initialTheme);
+
+            const featureCards = document.querySelectorAll('.card[data-feature]');
+            const modal = document.getElementById('feature-modal');
+            const modalTitle = document.getElementById('modal-title');
+            const modalContent = document.getElementById('modal-content');
+            const modalClose = document.getElementById('modal-close');
+
+            featureCards.forEach(card => {
+                card.addEventListener('click', () => {
+                    const featureKey = card.dataset.feature;
+                    const details = featureDetails[featureKey];
+                    if (details) {
+                        modalTitle.textContent = details.title;
+                        modalContent.innerHTML = details.content;
+                        modal.classList.remove('hidden');
+                        modal.classList.add('flex');
+                    }
+                });
+            });
+
+            const closeModal = () => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            };
+
+            modalClose.addEventListener('click', closeModal);
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) closeModal();
+            });
+
+            const archComponents = document.querySelectorAll('.arch-component');
+            const archInfoBox = document.getElementById('arch-info');
+            archComponents.forEach(component => {
+                component.addEventListener('click', () => {
+                    archInfoBox.innerHTML = `<p class="font-mono">${component.dataset.info}</p>`;
+                });
+            });
+            
+            const sections = document.querySelectorAll('section');
+            const navLinks = document.querySelectorAll('.nav-link');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        navLinks.forEach(link => {
+                            link.classList.remove('active-nav');
+                            if (link.getAttribute('href').substring(1) === entry.target.id) {
+                                link.classList.add('active-nav');
+                            }
+                        });
+                    }
+                });
+            }, { rootMargin: "-50% 0px -50% 0px" });
+
+            sections.forEach(section => observer.observe(section));
+        });
+    </script>
+</body>
+</html>
+
